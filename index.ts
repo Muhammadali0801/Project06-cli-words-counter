@@ -2,22 +2,56 @@
 
 // Using Inquirer to easily collect and process user input in the command line interface (CLI).
 import inquirer from "inquirer";
+import chalk from "chalk";
 
-// Declare a constant `answer` and assign it to the result of inquirer.prompt function
-const answers: {
-    Sentence: string
-} = await inquirer.prompt([
-    { 
-        name:"Sentence",
-        type:"input",
-        message:"Enter your sentence to count the word:",
-    },
-])
-const words = answers.Sentence.trim().split(" ")
+async function askSentence() {
+    // Welcoming message
+    console.log(chalk.green("Welcome to the mshk-word-counter"));
 
-// print the array of words to the console
-console.log(words);
+    // Declare a constant `answers` and assign it to the result of inquirer.prompt function
+    const answers: {
+        Sentence: string
+    } = await inquirer.prompt([
+        { 
+            name: "Sentence",
+            type: "input",
+            message: "Enter your sentence to count the words:",
+            validate: (input: string) => {
+                if (input.trim() === "") {
+                    return chalk.red("Please enter a valid sentence.");
+                }
+                return true;
+            }
+        },
+    ]);
+    const words = answers.Sentence.trim().split(" ");
 
-// print the words count of the sentence to the console
-console.log(`Your sentence word count is ${words.length}`);
+    // Print the array of words to the console
+    console.log(chalk.blue(words));
 
+    // Print the words count of the sentence to the console
+    console.log(chalk.yellow(`Your sentence word count is ${words.length}`));
+}
+
+async function main() {
+    let again = true;
+    while (again) {
+        await askSentence();
+        const answer: {
+            retry: boolean
+        } = await inquirer.prompt([
+            {
+                name: "retry",
+                type: "confirm",
+                message: "Do you want to count the words in another sentence?",
+                default: false,
+            },
+        ]);
+        again = answer.retry;
+    }
+    // Ending Message
+    console.log(chalk.red("Thank you for using the mshk-word-counter!"));
+}
+
+// Call the main function to start the program
+main();
